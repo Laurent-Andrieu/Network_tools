@@ -4,8 +4,6 @@
 import subprocess
 import sys
 
-# TODO: Ajouter un 2nd exept avec git clone
-
 
 try:
     import netfilterqueue
