@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-# *-utf-8-*
+#!/usr/bin/env python3
+# -*-coding: utf-8-*-
+
 
 import re
 import subprocess
@@ -28,9 +29,10 @@ def get_config():
 
 
 def netscan(interfaces):
+    net_interfaces = []
     for i in interfaces:
         for j in i:
-            print(i[f'{j}'])
+            net_interfaces.append(i[f'{j}'])
 
 
 netscan(get_config())
