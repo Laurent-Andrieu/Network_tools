@@ -11,8 +11,7 @@ def get_config():
 
     int_cmd = subprocess.check_output('ip link show', shell=True)
     interfaces = re.findall('\d+: (\w+)', str(int_cmd))
-    interface = []
-
+    interface_list = []
     for i, interf in enumerate(interfaces):
         cfg_cmd = subprocess.check_output(f'ifconfig {interf}', shell=True)
         cfg_cmd = str(cfg_cmd)
@@ -23,16 +22,16 @@ def get_config():
         netmask = re.findall('netmask ([\d{1,3}.]+)', cfg_cmd)
 
         if (mac, ipv4, ipv6, broadcast, netmask):
-            interface.append({'interf': interf, 'mac': mac, 'ipv4': ipv4, 'ipv6': ipv6, 'netmask': netmask,
+            interface_list.append({'interf': interf, 'mac': mac, 'ipv4': ipv4, 'ipv6': ipv6, 'netmask': netmask,
                               'broadcast': broadcast})
-    return interface
+    return interface_list
 
 
-def netscan(interfaces):
-    net_interfaces = []
-    for i in interfaces:
-        for j in i:
-            net_interfaces.append(i[f'{j}'])
+def scan(ipv4):
+    arp_request = scapy.ARP(pdst=ipv4)
+    broadcast = scapy.Ether(dst=b"ff:ff:ff:ff:ff:ff")
+    arp_request_broadcast = broadcast / arp_request
+    answer = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+    clients = [{"IP": address[1].psrc, "MAC": address[1].hwsrc} for address in answer]
+    return clients
 
-
-netscan(get_config())

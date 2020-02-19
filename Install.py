@@ -10,11 +10,16 @@ try:
     import netfilterqueue
     import scapy.all
     import tkinter
+    import optparse
+    import re
 except ImportError as err:
     print(err)
     subprocess.call('pip3 install NetfilterQueue', shell=True)
     subprocess.call('pip3 install scapy', shell=True)
     subprocess.call('pip3 install python3-tk', shell=True)
+    subprocess.call('pip3 install optparse', shell=True)
+    subprocess.call('pip3 install re', shell=True)
+
     if err:
         sys.stdout.write('Installation failed.\nRetry installation of the requirements manually')
     else:

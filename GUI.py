@@ -5,19 +5,17 @@ import Netscan
 
 
 def config():
-    res = []
-    for i in Netscan.get_config():
-        res.append(i)
+    res = [i for i in Netscan.get_config()]
     return res
 
 
 def display_info(info):
     filewin = Toplevel(root)
-    button = Button(filewin, text="")
+    button = Button(filewin, textvariable=info)
     button.pack()
 
 
-def callback():
+def interface_callback():
     params.config(state=NORMAL)
     params.delete('1.0', END)
     selected = interface_list.selection_get()
@@ -26,57 +24,86 @@ def callback():
             params.insert(END, str('\n'.join(f'{k}:\t{v}' for k, v in interface.items())))
     params.config(state=DISABLED)
 
+
+# TODO: calcul auto du netmask pour le rajouter au scan
+def scanner_callback():
+    users.config(state=NORMAL)
+    users.delete('0.1', END)
+    selected = interface_list.selection_get()
+    for interface in Netscan.get_config():
+        if interface['interf'] == selected:
+            ip4 = interface['ipv4']
+            for items in Netscan.scan(ip4[0] + "/24"):
+                users.insert(END, str(''.join(f'{ip}\t{mac}\n' for ip, mac in items.items())))
+                users.insert(END, '\n')
+    users.config(state=DISABLED)
+
+
 # ROOT
 root = Tk()
-root.geometry("500x500")
+root.geometry("800x300")
 #   MENU
 menubar = Menu(root, bg="white")
 #       FILE
 filemenu = Menu(menubar, tearoff=0, bg="white")
-filemenu.add_command(label="Version", command=display_info)
-filemenu.add_command(label="Credits", command=display_info)
+filemenu.add_command(label="Version", command=display_info("Version 1.0"))
+filemenu.add_command(label="Credits", command=display_info("Laurent Andrieu"))
 filemenu.add_command(label="Close")
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=root.quit)
 menubar.add_cascade(label="File", menu=filemenu)
 #       HELP
 helpmenu = Menu(menubar, tearoff=0, bg="white")
-helpmenu.add_command(label="Help Index", command=display_info)
-helpmenu.add_command(label="About...", command=display_info)
+helpmenu.add_command(label="Help Index", command=display_info("Aide"))
+helpmenu.add_command(label="About...", command=display_info(""))
 menubar.add_cascade(label="Help", menu=helpmenu)
 
-#   WINDOW
-#window1 = ttk.Notebook(root)
-#tab1 = ttk.Frame(window1)
-#window1.add(tab1, text='Paramétrage')
-#window1.grid(row=3, column=0)
 
 # Frames
-interface_frame = Frame(root, bg='#d6bebc', bd=3, height=150, width=300)
-interface_frame.grid(row=0, column=0)
-scanner_frame = Frame(root, bg='#d6c4c3', bd=3, height=300, width=300)
-scanner_frame.grid(row=0, column=1)
+main = Frame(root, bg="#d6c4c3", bd=3)
+main.pack(side=TOP, fill=X)
+interface_frame = Frame(main, bg='#d6c4c3', bd=3, height=150, width=300)
+interface_frame.pack(side=LEFT)
+info_frame = Frame(main, bg='#d6c4c3', bd=3, height=300, width=300)
+info_frame.pack(side=LEFT)
+scanner_frame = Frame(main, bg="#d6c4c3", bd=3, height=300, width=450)
+scanner_frame.pack(side=LEFT)
+
+#   WINDOW
+#window1 = ttk.Notebook(main)
+#tab1 = ttk.Frame(main)
+#window1.add(main, text='Paramétrage',)
+#window1.pack(side=LEFT, fill=BOTH)
 
 #   Label
 interface_label = Label(interface_frame, text='Interfaces', bg='#d6bebc', fg='#108187')
 interface_label.pack()
 
 #   Interfaces Widget
-scrollbar = Scrollbar(interface_frame)
-scrollbar.pack(side=RIGHT, fill=Y)
-interface_list = Listbox(interface_frame, yscrollcommand=scrollbar.set)
+interface_scrollbar = Scrollbar(interface_frame)
+interface_scrollbar.pack(side=RIGHT, fill=Y)
+interface_list = Listbox(interface_frame, yscrollcommand=interface_scrollbar.set)
 for a in range(len(config())):
     if not config()[a]['interf'] == 'lo':
         interface_list.insert(END, f'{config()[a]["interf"]}')
 interface_list.pack(side=LEFT, fill=BOTH)
-scrollbar.config(command=interface_list.yview)
+interface_scrollbar.config(command=interface_list.yview)
 
 
-#   Network Scanner Widget
-bt = Button(scanner_frame, text='Select', command=callback)
-bt.pack()
-params = Text(scanner_frame, height=10, width=35, state=DISABLED, wrap=WORD)
+#   Interface info Widgets
+bt_select = Button(info_frame, text='Select', command=interface_callback)
+bt_select.pack()
+params = Text(info_frame, height=10, width=45, state=DISABLED, wrap=WORD)
 params.pack()
+
+#   Network scanner Widget
+bt_scan = Button(scanner_frame, text='Scan', command=scanner_callback)
+bt_scan.pack()
+scanner_scrollbar = Scrollbar(scanner_frame)
+scanner_scrollbar.pack(side=RIGHT, fill=Y)
+users = Text(scanner_frame, yscrollcommand=scanner_scrollbar.set, height=12, width=60)
+users.pack(side=LEFT, fill=BOTH)
+
 # ROOT-END
 root.config(menu=menubar, bg="white")
 root.mainloop()
