@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import scrolledtext
+from tkinter import ttk
 import Netscan
 
 
@@ -16,11 +18,13 @@ def display_info(info):
 
 
 def callback():
-    exam = interface_list.selection_get()
-    for x in config():
-        if x["interf"] == exam:
-            var.set(f'{x}')
-
+    params.config(state=NORMAL)
+    params.delete('1.0', END)
+    selected = interface_list.selection_get()
+    for interface in Netscan.get_config():
+        if interface['interf'] == selected:
+            params.insert(END, str('\n'.join(f'{k}:\t{v}' for k, v in interface.items())))
+    params.config(state=DISABLED)
 
 # ROOT
 root = Tk()
@@ -40,6 +44,12 @@ helpmenu = Menu(menubar, tearoff=0, bg="white")
 helpmenu.add_command(label="Help Index", command=display_info)
 helpmenu.add_command(label="About...", command=display_info)
 menubar.add_cascade(label="Help", menu=helpmenu)
+
+#   WINDOW
+#window1 = ttk.Notebook(root)
+#tab1 = ttk.Frame(window1)
+#window1.add(tab1, text='Paramétrage')
+#window1.grid(row=3, column=0)
 
 # Frames
 interface_frame = Frame(root, bg='#d6bebc', bd=3, height=150, width=300)
@@ -63,11 +73,10 @@ scrollbar.config(command=interface_list.yview)
 
 
 #   Network Scanner Widget
-var = StringVar()
-bt = Button(scanner_frame, text='Scan', command=callback)
+bt = Button(scanner_frame, text='Select', command=callback)
 bt.pack()
-result = Message(scanner_frame, textvariable=var, )
-result.pack()
+params = Text(scanner_frame, height=10, width=35, state=DISABLED, wrap=WORD)
+params.pack()
 # ROOT-END
 root.config(menu=menubar, bg="white")
 root.mainloop()
