@@ -12,6 +12,7 @@ try:
     import tkinter
     import optparse
     import re
+    import netaddr
 except ImportError as err:
     print(err)
     subprocess.call('pip3 install NetfilterQueue', shell=True)
@@ -19,6 +20,7 @@ except ImportError as err:
     subprocess.call('pip3 install python3-tk', shell=True)
     subprocess.call('pip3 install optparse', shell=True)
     subprocess.call('pip3 install re', shell=True)
+    subprocess.call('pip3 install netaddr', shell=True)
 
     if err:
         sys.stdout.write('Installation failed.\nRetry installation of the requirements manually')
