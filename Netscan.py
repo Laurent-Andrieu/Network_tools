@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*-coding: utf-8-*-
 
-
 import re
 import subprocess
 import scapy.all as scapy
 
 
 def get_config():
-
     int_cmd = subprocess.check_output('ip link show', shell=True)
     interfaces = re.findall('\d+: (\w+)', str(int_cmd))
     interface_list = []
@@ -34,4 +32,9 @@ def scan(ipv4):
     answer = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
     clients = [{"IP": address[1].psrc, "MAC": address[1].hwsrc} for address in answer]
     return clients
+
+
+def get_gateway():
+    gtw_cmd = subprocess.check_output('ip route show default 0.0.0.0/0', shell=True)
+    gtw = re.search('([\d{3}.+]+).+(\b[\w|\d]+\b)(\sproto)', str(gtw_cmd))
 
