@@ -36,5 +36,5 @@ def scan(ipv4):
 
 def get_gateway():
     gtw_cmd = subprocess.check_output('ip route show default 0.0.0.0/0', shell=True)
-    gtw = re.search('([\d{3}.+]+).+(\b[\w|\d]+\b)(\sproto)', str(gtw_cmd))
-
+    gtw = re.search(r'([\d{3}.+]+).+(\b[\w|\d]+)(?:\sproto)', str(gtw_cmd)).groups()
+    return gtw
