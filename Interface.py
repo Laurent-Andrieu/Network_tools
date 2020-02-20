@@ -39,9 +39,11 @@ def scanner_callback():
             for items in Netscan.scan(ip4[0] + '/' + netmask_bit):
                 scan_list.insert(END, str(','.join(f'{key}={value}' for key, value in items.items())))
 
-
+# TODO: se démerder avec la suite
 def gateway_callback():
-    pass
+    gtw = Netscan.get_gateway()
+    for i in range(len(gtw)):
+        gateway_entry.insert(END, gtw)
 
 
 #   Root
@@ -99,8 +101,7 @@ scan = Button(tab_frame3, text='Scan Network', command=scanner_callback, width=1
 scan.pack()
 gateway_label = Label(tab_frame3, text='Gateway(s) found:\n(Correct the field if necessary with the right Gateway.)')
 gateway_label.pack(pady=15)
-gtw = Netscan.get_gateway()
-gateway_entry = Entry(tab_frame3, exportselection=0, justify=LEFT, state=NORMAL, textvariable=gtw, width=12)
+gateway_entry = Entry(tab_frame3, exportselection=0, justify=LEFT, state=NORMAL, width=12,)
 gateway_entry.pack(side=LEFT, padx=50)
 gateway_button = Button(tab_frame3, text='Select Gateway', command=gateway_callback, bd=3, relief='raised')
 gateway_button.pack(side=RIGHT, padx=50)

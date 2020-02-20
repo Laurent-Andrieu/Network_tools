@@ -11,8 +11,7 @@ def get_config():
     interfaces = re.findall('\d+: (\w+)', str(int_cmd))
     interface_list = []
     for i, interf in enumerate(interfaces):
-        cfg_cmd = subprocess.check_output(f'ifconfig {interf}', shell=True)
-        cfg_cmd = str(cfg_cmd)
+        cfg_cmd = subprocess.check_output(f'ifconfig {interf}', shell=True, universal_newlines=True)
         mac = re.findall('ether ([\w{2}:]{17})', cfg_cmd)
         ipv6 = re.findall('inet6 ([\w+:]+)', cfg_cmd)
         ipv4 = re.findall('inet ([\d{3}.+]+)', cfg_cmd)
@@ -35,6 +34,6 @@ def scan(ipv4):
 
 
 def get_gateway():
-    gtw_cmd = subprocess.check_output('ip route show default 0.0.0.0/0', shell=True)
-    gtw = re.search(r'([\d{3}.+]+).+(\b[\w|\d]+)(?:\sproto)', str(gtw_cmd)).groups()
+    gtw_cmd = subprocess.check_output('ip route show default 0.0.0.0/0', shell=True, universal_newlines=True)
+    gtw = re.findall(r'([\d{3}.+]+).+(\b[\w|\d]+)(?:\sproto)', gtw_cmd)
     return gtw
